@@ -1,9 +1,10 @@
 package com.example.springbootrabbitmqtutorial.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,20 +12,31 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
+    @Value("${rabbitmq.queue.string.name}")
+    private String stringQueue;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queue;
+    @Value("${rabbitmq.queue.json.name}")
+    private String jsonQueue;
 
     @Value("${rabbitmq.exchange.name}")
     private String exchange;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.routing.key.string}")
+    private String routingKeyString;
 
-    // spring bean for rabbitmq queue
+    @Value("${rabbitmq.routing.key.json}")
+    private String routingKeyJson;
+
+    // spring bean for rabbitmq queue string
     @Bean
-    public Queue queue() {
-        return new Queue(queue);
+    public Queue stringQueue() {
+        return new Queue(stringQueue);
+    }
+
+    // spring bean for rabbitmq queue json
+    @Bean
+    public Queue jsonQueue() {
+        return new Queue(jsonQueue);
     }
 
     // spring bean for rabbitmq  exchange
@@ -35,11 +47,32 @@ public class RabbitMQConfig {
 
     // binding between queue and exchange using routing_key
     @Bean
-    public Binding binding() {
+    public Binding stringBinding() {
         return BindingBuilder
-                .bind(queue())
+                .bind(stringQueue())
                 .to(exchange())
-                .with(routingKey);
+                .with(routingKeyString);
+    }
+
+    // binding between queue and exchange using routing_key
+    @Bean
+    public Binding jsonBinding() {
+        return BindingBuilder
+                .bind(jsonQueue())
+                .to(exchange())
+                .with(routingKeyJson);
+    }
+
+    @Bean
+    public MessageConverter converter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(converter());
+        return rabbitTemplate;
     }
 
     /*

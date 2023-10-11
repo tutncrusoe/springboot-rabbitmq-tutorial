@@ -7,18 +7,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RabbitMQProducer {
+public class RabbitMQStringProducer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQProducer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQStringProducer.class);
     @Value("${rabbitmq.exchange.name}")
     private String exchange;
 
-    @Value("${rabbitmq.routing.key}")
+    @Value("${rabbitmq.routing.key.string}")
     private String routingKey;
 
     private final RabbitTemplate rabbitTemplate;
 
-    public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
+    public RabbitMQStringProducer(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
