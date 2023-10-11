@@ -42,6 +42,9 @@ public class RabbitMQConfig {
                 .with(routingKey);
     }
 
+    /*
+    Spring boot automatically created all beans of them.
+     */
     // Connection Factory
     // RabbitTemplate
     // RabbitAdmin
